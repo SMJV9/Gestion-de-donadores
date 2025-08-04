@@ -1,27 +1,27 @@
 # WindowsFormsApp1
 
-Una aplicaciÛn de Windows Forms desarrollada en .NET Framework 4.7.2 para la gestiÛn de gastos e ingresos.
+Una aplicaci√≥n de Windows Forms desarrollada en .NET Framework 4.7.2 para la gesti√≥n de gastos e ingresos.
 
-## CaracterÌsticas
+## Caracter√≠sticas
 
-- **GestiÛn de Usuarios**: Sistema de login con diferentes niveles de acceso
-- **GestiÛn de Clientes**: Formulario para altas de clientes
-- **GestiÛn de Ingresos**: MÛdulo de donaciones e ingresos
-- **GestiÛn de Gastos**: Control de egresos y gastos
-- **CategorÌas**: AdministraciÛn de categorÌas para organizar transacciones
-- **Proveedores**: GestiÛn de proveedores
-- **Reportes**: GeneraciÛn de reportes de gastos con filtros por fecha
+- **Gesti√≥n de Usuarios**: Sistema de login con diferentes niveles de acceso
+- **Gesti√≥n de Clientes**: Formulario para altas de clientes
+- **Gesti√≥n de Ingresos**: M√≥dulo de donaciones e ingresos
+- **Gesti√≥n de Gastos**: Control de egresos y gastos
+- **Categor√≠as**: Administraci√≥n de categor√≠as para organizar transacciones
+- **Proveedores**: Gesti√≥n de proveedores
+- **Reportes**: Generaci√≥n de reportes de gastos con filtros por fecha
 
 ## Estructura del Proyecto
 
-- `Form1.cs` - Formulario principal de la aplicaciÛn
-- `Login.cs` - Formulario de autenticaciÛn
-- `AltasClientes.cs` - GestiÛn de clientes
-- `Donaciones.cs` - MÛdulo de ingresos
-- `Gastos.cs` - MÛdulo de gastos
-- `Categorias.cs` - AdministraciÛn de categorÌas
-- `Proveedores.cs` - GestiÛn de proveedores
-- `ReporteGastos.cs` - GeneraciÛn de reportes
+- `Form1.cs` - Formulario principal de la aplicaci√≥n
+- `Login.cs` - Formulario de autenticaci√≥n
+- `AltasClientes.cs` - Gesti√≥n de clientes
+- `Donaciones.cs` - M√≥dulo de ingresos
+- `Gastos.cs` - M√≥dulo de gastos
+- `Categorias.cs` - Administraci√≥n de categor√≠as
+- `Proveedores.cs` - Gesti√≥n de proveedores
+- `ReporteGastos.cs` - Generaci√≥n de reportes
 
 ## Requisitos del Sistema
 
@@ -29,32 +29,32 @@ Una aplicaciÛn de Windows Forms desarrollada en .NET Framework 4.7.2 para la ges
 - Windows 7/8/10/11
 - Visual Studio 2017 o superior (para desarrollo)
 
-## InstalaciÛn y EjecuciÛn
+## Instalaci√≥n y Ejecuci√≥n
 
 1. Clona este repositorio:
    ```bash
-   git clone [URL_DEL_REPOSITORIO]
+   git clone "https://github.com/SMJV9/Gestion-de-donadores.git"
    ```
 
 2. Abre el proyecto en Visual Studio:
    - Abre el archivo `WindowsFormsApp1.sln`
 
 3. Compila y ejecuta:
-   - Presiona F5 o usa el men˙ Debug > Start Debugging
+   - Presiona F5 o usa el men√∫ Debug > Start Debugging
 
 ## Uso
 
-1. Al iniciar la aplicaciÛn, se mostrar· la pantalla de login
+1. Al iniciar la aplicaci√≥n, se mostrar√° la pantalla de login
 2. Ingresa las credenciales correspondientes
-3. Una vez autenticado, accede a los diferentes mÛdulos desde el men˙ principal:
+3. Una vez autenticado, accede a los diferentes m√≥dulos desde el men√∫ principal:
    - Altas de Clientes
    - Ingresos (Donaciones)
    - Gastos (Egresos)
-   - CategorÌas
+   - Categor√≠as
    - Proveedores
    - Reportes de Gastos
 
-## ContribuciÛn
+## Contribuci√≥n
 
 Si deseas contribuir a este proyecto:
 
@@ -66,11 +66,11 @@ Si deseas contribuir a este proyecto:
 
 ## Licencia
 
-Este proyecto est· bajo la licencia MIT. Ver el archivo `LICENSE` para m·s detalles.
+Este proyecto est√° bajo la licencia MIT. Ver el archivo `LICENSE` para m√°s detalles.
 
-## VersiÛn
+## Versi√≥n
 
-VersiÛn actual: 1.0.0.0
+Versi√≥n actual: 1.0.0.0
 
 ## Contacto
 
