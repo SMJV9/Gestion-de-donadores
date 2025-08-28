@@ -5,9 +5,11 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace WindowsFormsApp1
 {
@@ -17,6 +19,17 @@ namespace WindowsFormsApp1
         private DataTable dtDonaciones;
         private DataTable dtClientesDonantes;
         private bool modoEdicion = false;
+        private const string firebaseUrl = "https://base-de-datos-sistemadegestion-default-rtdb.firebaseio.com/donaciones.json";
+
+        // Clase auxiliar para donación
+        public class DonacionFirebase
+        {
+            public int IdClienteDonante { get; set; }
+            public string NombreCompleto { get; set; }
+            public decimal Importe { get; set; }
+            public string Factura { get; set; }
+            public DateTime FechaDonacion { get; set; }
+        }
 
         public Donaciones()
         {
@@ -24,13 +37,51 @@ namespace WindowsFormsApp1
             InicializarDataTables();
         }
 
+        // Guardar donación en Firebase
+        private async Task GuardarDonacionEnFirebaseAsync(DonacionFirebase donacion)
+        {
+            var json = JsonConvert.SerializeObject(donacion);
+            using (var client = new HttpClient())
+            {
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(firebaseUrl, content);
+                string result = await response.Content.ReadAsStringAsync();
+                // Puedes mostrar un mensaje si quieres
+                // MessageBox.Show($"Respuesta de Firebase: {result}");
+            }
+        }
+
+        // Leer donaciones desde Firebase y mostrarlas en el grid
+        private async Task LeerDonacionesDeFirebaseAsync()
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(firebaseUrl);
+                string result = await response.Content.ReadAsStringAsync();
+                dtDonaciones.Rows.Clear();
+                if (!string.IsNullOrWhiteSpace(result) && result != "null")
+                {
+                    var dict = JsonConvert.DeserializeObject<Dictionary<string, DonacionFirebase>>(result);
+                    if (dict != null)
+                    {
+                        int id = 1;
+                        foreach (var item in dict.Values)
+                        {
+                            dtDonaciones.Rows.Add(id++, item.IdClienteDonante, item.NombreCompleto, item.Importe, item.Factura, item.FechaDonacion);
+                        }
+                    }
+                }
+            }
+            CargarDatos();
+        }
+
         private void Donaciones_Load(object sender, EventArgs e)
         {
             // Configurar el formulario al cargar
             dtpFechaDonacion.Value = DateTime.Now;
             CargarClientesDonantes();
-            CargarDatos();
             LimpiarCampos();
+            _ = LeerDonacionesDeFirebaseAsync();
         }
 
         private void InicializarDataTables()
@@ -42,12 +93,7 @@ namespace WindowsFormsApp1
             dtClientesDonantes.Columns.Add("RegistroFiscal", typeof(string));
             dtClientesDonantes.Columns.Add("Telefono", typeof(string));
             dtClientesDonantes.Columns.Add("Correo", typeof(string));
-
-            // Agregar algunos clientes/donantes de ejemplo
-            dtClientesDonantes.Rows.Add(1, "Juan Pérez García", "PEGJ800101ABC", "555-1234", "juan.perez@email.com");
-            dtClientesDonantes.Rows.Add(2, "Empresas ABC S.A. de C.V.", "EAB990515XYZ", "555-5678", "contacto@empresasabc.com");
-            dtClientesDonantes.Rows.Add(3, "Ana López Martínez", "LOMA850320DEF", "555-9012", "ana.lopez@email.com");
-            dtClientesDonantes.Rows.Add(4, "Fundación Benéfica XYZ", "FBX070815HIJ", "555-3456", "info@fundacionxyz.org");
+            // Sin datos de ejemplo
 
             // Crear la estructura de datos que simula la tabla Donaciones
             dtDonaciones = new DataTable();
@@ -57,13 +103,7 @@ namespace WindowsFormsApp1
             dtDonaciones.Columns.Add("Importe", typeof(decimal));
             dtDonaciones.Columns.Add("Factura", typeof(string));
             dtDonaciones.Columns.Add("FechaDonacion", typeof(DateTime));
-
-            // Agregar algunas donaciones de ejemplo
-            dtDonaciones.Rows.Add(1, 1, "Juan Pérez García", 5000.00m, "FAC-001", DateTime.Now.AddDays(-15));
-            dtDonaciones.Rows.Add(2, 2, "Empresas ABC S.A. de C.V.", 25000.00m, "FAC-002", DateTime.Now.AddDays(-10));
-            dtDonaciones.Rows.Add(3, 1, "Juan Pérez García", 3000.00m, "", DateTime.Now.AddDays(-5));
-            dtDonaciones.Rows.Add(4, 3, "Ana López Martínez", 7500.00m, "FAC-003", DateTime.Now.AddDays(-3));
-            dtDonaciones.Rows.Add(5, 4, "Fundación Benéfica XYZ", 15000.00m, "FAC-004", DateTime.Now.AddDays(-1));
+            // Sin datos de ejemplo
         }
 
         private void CargarClientesDonantes()
@@ -188,29 +228,29 @@ namespace WindowsFormsApp1
             return cliente != null ? cliente["NombreRazonSocial"].ToString() : "";
         }
 
-        private void btnAgregar_Click(object sender, EventArgs e)
+        private async void btnAgregar_Click(object sender, EventArgs e)
         {
             if (!ValidarCampos())
                 return;
 
             try
             {
-                DataRow nuevaFila = dtDonaciones.NewRow();
-                nuevaFila["IdDonacion"] = ObtenerNuevoId();
-                nuevaFila["IdClienteDonante"] = Convert.ToInt32(cmbClienteDonante.SelectedValue);
-                nuevaFila["NombreCompleto"] = cmbClienteDonante.Text;
-                nuevaFila["Importe"] = Convert.ToDecimal(txtImporte.Text);
-                nuevaFila["Factura"] = txtFactura.Text.Trim();
-                nuevaFila["FechaDonacion"] = dtpFechaDonacion.Value.Date;
-
-                dtDonaciones.Rows.Add(nuevaFila);
-                
-                MessageBox.Show("Donación registrada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var donacion = new DonacionFirebase
+                {
+                    IdClienteDonante = Convert.ToInt32(cmbClienteDonante.SelectedValue),
+                    NombreCompleto = cmbClienteDonante.Text,
+                    Importe = Convert.ToDecimal(txtImporte.Text),
+                    Factura = txtFactura.Text.Trim(),
+                    FechaDonacion = dtpFechaDonacion.Value.Date
+                };
+                await GuardarDonacionEnFirebaseAsync(donacion);
+                MessageBox.Show("Donación registrada correctamente en la nube.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await LeerDonacionesDeFirebaseAsync();
                 LimpiarCampos();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al agregar el registro: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al agregar el registro en la nube: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

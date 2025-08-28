@@ -45,10 +45,7 @@ namespace WindowsFormsApp1
             dtClientesDonantes.Columns.Add("FormaPago", typeof(string));
             dtClientesDonantes.Columns.Add("FechaRegistro", typeof(DateTime));
 
-            // Agregar algunos datos de ejemplo
-            dtClientesDonantes.Rows.Add(1, "Juan Pérez García", "PEGJ800101ABC", "Av. Principal #123, Col. Centro", "555-1234", "juan.perez@email.com", "Juan Pérez", "Efectivo", DateTime.Now.AddDays(-30));
-            dtClientesDonantes.Rows.Add(2, "Empresas ABC S.A. de C.V.", "EAB990515XYZ", "Blvd. Empresarial #456, Col. Industrial", "555-5678", "contacto@empresasabc.com", "María González", "Transferencia", DateTime.Now.AddDays(-15));
-            dtClientesDonantes.Rows.Add(3, "Ana López Martínez", "LOMA850320DEF", "Calle Secundaria #789, Col. Residencial", "555-9012", "ana.lopez@email.com", "", "Tarjeta de Crédito", DateTime.Now.AddDays(-7));
+            // Sin datos de ejemplo
         }
 
         private void CargarDatos()

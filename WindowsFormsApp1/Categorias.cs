@@ -38,23 +38,7 @@ namespace WindowsFormsApp1
             dtCategorias.Columns.Add("Nombre", typeof(string));
             dtCategorias.Columns.Add("FechaCreacion", typeof(DateTime));
             dtCategorias.Columns.Add("TieneFecha", typeof(bool)); // Para controlar si tiene fecha o es NULL
-
-            // Agregar categorías de ejemplo según el contexto de gastos
-            dtCategorias.Rows.Add(1, "Gasolina", DateTime.Now.AddDays(-60), true);
-            dtCategorias.Rows.Add(2, "Limpieza", DateTime.Now.AddDays(-45), true);
-            dtCategorias.Rows.Add(3, "Alimentación", DateTime.Now.AddDays(-30), true);
-            dtCategorias.Rows.Add(4, "Servicios Públicos", DateTime.Now.AddDays(-75), true);
-            dtCategorias.Rows.Add(5, "Mantenimiento", DateTime.Now.AddDays(-20), true);
-            dtCategorias.Rows.Add(6, "Suministros de Oficina", DateTime.Now.AddDays(-15), true);
-            dtCategorias.Rows.Add(7, "Personal", DateTime.Now.AddDays(-90), true);
-            dtCategorias.Rows.Add(8, "Transporte", DBNull.Value, false);
-            dtCategorias.Rows.Add(9, "Comunicaciones", DBNull.Value, false);
-            dtCategorias.Rows.Add(10, "Marketing", DateTime.Now.AddDays(-5), true);
-            dtCategorias.Rows.Add(11, "Seguros", DateTime.Now.AddDays(-120), true);
-            dtCategorias.Rows.Add(12, "Capacitación", DBNull.Value, false);
-            dtCategorias.Rows.Add(13, "Reparaciones", DateTime.Now.AddDays(-10), true);
-            dtCategorias.Rows.Add(14, "Compras Varias", DateTime.Now.AddDays(-3), true);
-            dtCategorias.Rows.Add(15, "Otros", DBNull.Value, false);
+            // Sin datos de ejemplo
         }
 
         private void CargarDatos()

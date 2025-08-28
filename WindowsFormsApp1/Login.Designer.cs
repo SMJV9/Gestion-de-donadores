@@ -37,6 +37,7 @@
             this.btnIniciarSesion = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
             this.lblTitulo = new System.Windows.Forms.Label();
+            this.btnProbarFirebase = new System.Windows.Forms.Button();
             this.groupBoxDatos.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -72,7 +73,7 @@
             this.txtUsuario.Name = "txtUsuario";
             this.txtUsuario.Size = new System.Drawing.Size(250, 20);
             this.txtUsuario.TabIndex = 1;
-            this.txtUsuario.Text = "admin";
+            this.txtUsuario.Text = "Julio";
             this.txtUsuario.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtUsuario_KeyPress);
             // 
             // lblContrasena
@@ -92,7 +93,7 @@
             this.txtContrasena.PasswordChar = '*';
             this.txtContrasena.Size = new System.Drawing.Size(220, 20);
             this.txtContrasena.TabIndex = 3;
-            this.txtContrasena.Text = "admin";
+            this.txtContrasena.Text = "julio";
             this.txtContrasena.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtContrasena_KeyPress);
             // 
             // btnMostrarContrasena
@@ -132,19 +133,30 @@
             this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(73)))), ((int)(((byte)(94)))));
             this.lblTitulo.Location = new System.Drawing.Point(12, 15);
             this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(196, 24);
+            this.lblTitulo.Size = new System.Drawing.Size(136, 24);
             this.lblTitulo.TabIndex = 7;
             this.lblTitulo.Text = "Iniciar Sesión";
+            // 
+            // btnProbarFirebase
+            // 
+            this.btnProbarFirebase.Location = new System.Drawing.Point(199, 194);
+            this.btnProbarFirebase.Name = "btnProbarFirebase";
+            this.btnProbarFirebase.Size = new System.Drawing.Size(180, 23);
+            this.btnProbarFirebase.TabIndex = 99;
+            this.btnProbarFirebase.Text = "Probar conexión Firebase";
+            this.btnProbarFirebase.UseVisualStyleBackColor = true;
+            this.btnProbarFirebase.Click += new System.EventHandler(this.btnProbarFirebase_Click);
             // 
             // Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 241);
+            this.ClientSize = new System.Drawing.Size(384, 261);
             this.Controls.Add(this.lblTitulo);
             this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.btnIniciarSesion);
             this.Controls.Add(this.groupBoxDatos);
+            this.Controls.Add(this.btnProbarFirebase);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -170,5 +182,6 @@
         private System.Windows.Forms.Button btnIniciarSesion;
         private System.Windows.Forms.Button btnCancelar;
         private System.Windows.Forms.Label lblTitulo;
+        private System.Windows.Forms.Button btnProbarFirebase;
     }
 }

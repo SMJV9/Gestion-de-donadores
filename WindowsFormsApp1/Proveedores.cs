@@ -39,20 +39,6 @@ namespace WindowsFormsApp1
             dtProveedores.Columns.Add("Direccion", typeof(string));
             dtProveedores.Columns.Add("Correo", typeof(string));
             dtProveedores.Columns.Add("Categoria", typeof(string));
-
-            // Agregar proveedores de ejemplo
-            dtProveedores.Rows.Add(1, "Papelería San Miguel", "Av. Central #123, Col. Centro", "ventas@papeleriasanmiguel.com", "Papelería");
-            dtProveedores.Rows.Add(2, "Transportes García S.A.", "Blvd. Industrial #456", "contacto@transportesgarcia.com", "Transporte");
-            dtProveedores.Rows.Add(3, "Servicios Técnicos XYZ", "Calle Tecnología #789", "info@serviciosxyz.com", "Servicios");
-            dtProveedores.Rows.Add(4, "CompuTech Solutions", "Torre Corporativa, Piso 5", "soporte@computech.com", "Tecnología");
-            dtProveedores.Rows.Add(5, "Constructora Moderna", "Zona Industrial Norte", "proyectos@constructoramoderna.com", "Construcción");
-            dtProveedores.Rows.Add(6, "LimpiezaTotal S.A.", "Av. Servicios #321", "admin@limpiezatotal.com", "Limpieza");
-            dtProveedores.Rows.Add(7, "Distribuidora de Alimentos", "Mercado Central Local 15", "pedidos@distalimentos.com", "Alimentación");
-            dtProveedores.Rows.Add(8, "Mantenimiento Industrial", "Parque Industrial #567", "servicios@mantind.com", "Mantenimiento");
-            dtProveedores.Rows.Add(9, "Consultoría Empresarial ABC", "Centro Empresarial, Of. 304", "contacto@consultoriaabc.com", "Consultoría");
-            dtProveedores.Rows.Add(10, "Suministros Varios", "Av. Comercial #890", "ventas@suministrosvarios.com", "Otros");
-            dtProveedores.Rows.Add(11, "Oficina Express", "Plaza Comercial Local 12", "pedidos@oficinaexpress.com", "Papelería");
-            dtProveedores.Rows.Add(12, "TechServ Pro", "Zona Rosa #445", "help@techservpro.com", "Tecnología");
         }
 
         private void CargarDatos()

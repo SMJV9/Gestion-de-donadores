@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace WindowsFormsApp1
 {
@@ -25,53 +27,73 @@ namespace WindowsFormsApp1
             txtUsuario.Focus();
         }
 
-        private void btnIniciarSesion_Click(object sender, EventArgs e)
+        // URL base de tu Firebase (Realtime Database)
+        private const string firebaseUrl = "https://base-de-datos-sistemadegestion-default-rtdb.firebaseio.com/usuarios.json";
+
+        // Clase auxiliar para deserializar usuarios
+        public class UsuarioFirebase
         {
-            if (ValidarCredenciales())
+            public string usuario { get; set; }
+            public string contrasena { get; set; }
+            public int nivel { get; set; } // Asegura que el nivel se lea como int
+        }
+
+        // Validar credenciales contra Firebase y obtener nivel
+        private async Task<UsuarioFirebase> ObtenerUsuarioFirebaseAsync(string usuario, string contrasena)
+        {
+            using (var client = new HttpClient())
             {
-                // Simular autenticación exitosa
-                Form1.cuenta = txtUsuario.Text;
-                Form1.nivel = 1; // Nivel de acceso
-                
-                MessageBox.Show("¡Bienvenido al sistema!", "Acceso concedido", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
-                this.DialogResult = DialogResult.OK;
-                this.Close();
-            }
-            else
-            {
-                MessageBox.Show("Usuario o contraseña incorrectos.\n\nCredenciales válidas:\nUsuario: admin\nContraseña: admin", 
-                    "Error de autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                
-                // Limpiar contraseña y enfocar usuario
-                txtContrasena.Clear();
-                txtUsuario.Focus();
-                txtUsuario.SelectAll();
+                var response = await client.GetAsync(firebaseUrl);
+                string result = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(result) || result == "null")
+                    return null;
+                var usuariosDict = JsonConvert.DeserializeObject<Dictionary<string, UsuarioFirebase>>(result);
+                if (usuariosDict == null)
+                    return null;
+                foreach (var item in usuariosDict.Values)
+                {
+                    if (item.usuario == usuario && item.contrasena == contrasena)
+                        return item;
+                }
+                return null;
             }
         }
 
-        private bool ValidarCredenciales()
+        private async void btnIniciarSesion_Click(object sender, EventArgs e)
         {
-            // Validaciones básicas
             if (string.IsNullOrWhiteSpace(txtUsuario.Text))
             {
                 MessageBox.Show("Por favor ingrese su usuario.", "Campo requerido", 
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtUsuario.Focus();
-                return false;
+                return;
             }
-
             if (string.IsNullOrWhiteSpace(txtContrasena.Text))
             {
                 MessageBox.Show("Por favor ingrese su contraseña.", "Campo requerido", 
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtContrasena.Focus();
-                return false;
+                return;
             }
-
-            // Validación simple (en un sistema real sería con base de datos)
-            return txtUsuario.Text.ToLower() == "admin" && txtContrasena.Text == "admin";
+            // Validar contra Firebase y obtener usuario
+            var usuarioFirebase = await ObtenerUsuarioFirebaseAsync(txtUsuario.Text, txtContrasena.Text);
+            if (usuarioFirebase != null)
+            {
+                Form1.cuenta = usuarioFirebase.usuario;
+                Form1.nivel = usuarioFirebase.nivel;
+                MessageBox.Show("¡Bienvenido al sistema!", "Acceso concedido", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show("Usuario o contraseña incorrectos.", 
+                    "Error de autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtContrasena.Clear();
+                txtUsuario.Focus();
+                txtUsuario.SelectAll();
+            }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
@@ -130,6 +152,40 @@ namespace WindowsFormsApp1
             }
             
             return base.ProcessDialogKey(keyData);
+        }
+
+        // Método para guardar un usuario de prueba en Firebase
+        private async Task GuardarEnFirebaseAsync(object datos)
+        {
+            var json = JsonConvert.SerializeObject(datos);
+            using (var client = new HttpClient())
+            {
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(firebaseUrl, content);
+                string result = await response.Content.ReadAsStringAsync();
+                MessageBox.Show($"Respuesta de Firebase: {result}");
+            }
+        }
+
+        // Método para leer usuarios desde Firebase
+        private async Task LeerDeFirebaseAsync()
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(firebaseUrl);
+                string result = await response.Content.ReadAsStringAsync();
+                MessageBox.Show($"Datos en Firebase: {result}");
+            }
+        }
+
+        // Evento para el botón de prueba de conexión
+        private async void btnProbarFirebase_Click(object sender, EventArgs e)
+        {
+            // Guardar usuario de prueba
+            var usuario = new { usuario = "prueba", fecha = System.DateTime.Now };
+            await GuardarEnFirebaseAsync(usuario);
+            // Leer usuarios
+            await LeerDeFirebaseAsync();
         }
     }
 }

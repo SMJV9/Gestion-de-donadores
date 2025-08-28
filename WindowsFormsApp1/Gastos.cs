@@ -5,9 +5,11 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace WindowsFormsApp1
 {
@@ -17,11 +19,64 @@ namespace WindowsFormsApp1
         private DataTable dtGastos;
         private DataTable dtCategorias;
         private bool modoEdicion = false;
+        private const string firebaseUrl = "https://base-de-datos-sistemadegestion-default-rtdb.firebaseio.com/gastos.json";
+        private const string firebaseBaseUrl = "https://base-de-datos-sistemadegestion-default-rtdb.firebaseio.com/gastos";
+
+        // Clase auxiliar para gasto
+        public class GastoFirebase
+        {
+            public string Nombre { get; set; }
+            public decimal Importe { get; set; }
+            public string TipoGasto { get; set; }
+            public int IdCategoria { get; set; }
+            public string NombreCategoria { get; set; }
+            public DateTime FechaGasto { get; set; }
+        }
 
         public Gastos()
         {
             InitializeComponent();
             InicializarDataTables();
+        }
+
+        // Guardar gasto en Firebase
+        private async Task GuardarGastoEnFirebaseAsync(GastoFirebase gasto)
+        {
+            var json = JsonConvert.SerializeObject(gasto);
+            using (var client = new HttpClient())
+            {
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(firebaseUrl, content);
+                string result = await response.Content.ReadAsStringAsync();
+                // Puedes mostrar un mensaje si quieres
+                // MessageBox.Show($"Respuesta de Firebase: {result}");
+            }
+        }
+
+        // Leer gastos desde Firebase y mostrarlos en el grid
+        private async Task LeerGastosDeFirebaseAsync()
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(firebaseUrl);
+                string result = await response.Content.ReadAsStringAsync();
+                dtGastos.Rows.Clear();
+                if (!string.IsNullOrWhiteSpace(result) && result != "null")
+                {
+                    var dict = JsonConvert.DeserializeObject<Dictionary<string, GastoFirebase>>(result);
+                    if (dict != null)
+                    {
+                        int id = 1;
+                        foreach (var kvp in dict)
+                        {
+                            var item = kvp.Value;
+                            string firebaseId = kvp.Key;
+                            dtGastos.Rows.Add(id++, firebaseId, item.Nombre, item.Importe, item.TipoGasto, item.IdCategoria, item.NombreCategoria, item.FechaGasto);
+                        }
+                    }
+                }
+            }
+            CargarDatos();
         }
 
         private void Gastos_Load(object sender, EventArgs e)
@@ -30,8 +85,8 @@ namespace WindowsFormsApp1
             dtpFechaGasto.Value = DateTime.Now;
             cmbTipoGasto.SelectedIndex = 0; // Seleccionar "Fijo" por defecto
             CargarCategorias();
-            CargarDatos();
             LimpiarCampos();
+            _ = LeerGastosDeFirebaseAsync();
         }
 
         private void InicializarDataTables()
@@ -56,6 +111,7 @@ namespace WindowsFormsApp1
             // Crear la estructura de datos que simula la tabla Gastos
             dtGastos = new DataTable();
             dtGastos.Columns.Add("IdGasto", typeof(int));
+            dtGastos.Columns.Add("FirebaseId", typeof(string)); // Nueva columna para el ID de Firebase
             dtGastos.Columns.Add("Nombre", typeof(string));
             dtGastos.Columns.Add("Importe", typeof(decimal));
             dtGastos.Columns.Add("TipoGasto", typeof(string));
@@ -64,13 +120,13 @@ namespace WindowsFormsApp1
             dtGastos.Columns.Add("FechaGasto", typeof(DateTime));
 
             // Agregar algunos gastos de ejemplo
-            dtGastos.Rows.Add(1, "Electricidad Febrero", 3500.00m, "Fijo", 1, "Servicios Públicos", DateTime.Now.AddDays(-25));
-            dtGastos.Rows.Add(2, "Agua Febrero", 1200.00m, "Fijo", 1, "Servicios Públicos", DateTime.Now.AddDays(-20));
-            dtGastos.Rows.Add(3, "Reparación Equipo", 2800.00m, "Variable", 2, "Mantenimiento", DateTime.Now.AddDays(-15));
-            dtGastos.Rows.Add(4, "Papel y Papelería", 850.00m, "Variable", 3, "Suministros de Oficina", DateTime.Now.AddDays(-10));
-            dtGastos.Rows.Add(5, "Salarios Equipo", 45000.00m, "Fijo", 4, "Personal", DateTime.Now.AddDays(-5));
-            dtGastos.Rows.Add(6, "Gasolina Vehículos", 2200.00m, "Variable", 5, "Transporte", DateTime.Now.AddDays(-3));
-            dtGastos.Rows.Add(7, "Internet y Teléfono", 1800.00m, "Fijo", 6, "Comunicaciones", DateTime.Now.AddDays(-1));
+            // dtGastos.Rows.Add(1, "Electricidad Febrero", 3500.00m, "Fijo", 1, "Servicios Públicos", DateTime.Now.AddDays(-25));
+            // dtGastos.Rows.Add(2, "Agua Febrero", 1200.00m, "Fijo", 1, "Servicios Públicos", DateTime.Now.AddDays(-20));
+            // dtGastos.Rows.Add(3, "Reparación Equipo", 2800.00m, "Variable", 2, "Mantenimiento", DateTime.Now.AddDays(-15));
+            // dtGastos.Rows.Add(4, "Papel y Papelería", 850.00m, "Variable", 3, "Suministros de Oficina", DateTime.Now.AddDays(-10));
+            // dtGastos.Rows.Add(5, "Salarios Equipo", 45000.00m, "Fijo", 4, "Personal", DateTime.Now.AddDays(-5));
+            // dtGastos.Rows.Add(6, "Gasolina Vehículos", 2200.00m, "Variable", 5, "Transporte", DateTime.Now.AddDays(-3));
+            // dtGastos.Rows.Add(7, "Internet y Teléfono", 1800.00m, "Fijo", 6, "Comunicaciones", DateTime.Now.AddDays(-1));
         }
 
         private void CargarCategorias()
@@ -92,6 +148,7 @@ namespace WindowsFormsApp1
             {
                 dataGridView1.Columns["IdGasto"].HeaderText = "ID";
                 dataGridView1.Columns["IdGasto"].Width = 50;
+                dataGridView1.Columns["FirebaseId"].Visible = false; // Ocultar el ID de Firebase
                 dataGridView1.Columns["Nombre"].HeaderText = "Nombre del Gasto";
                 dataGridView1.Columns["Nombre"].Width = 180;
                 dataGridView1.Columns["Importe"].HeaderText = "Importe";
@@ -216,34 +273,55 @@ namespace WindowsFormsApp1
             return categoria != null ? categoria["NombreCategoria"].ToString() : "";
         }
 
-        private void btnAgregar_Click(object sender, EventArgs e)
+        private async void btnAgregar_Click(object sender, EventArgs e)
         {
             if (!ValidarCampos())
                 return;
 
             try
             {
-                DataRow nuevaFila = dtGastos.NewRow();
-                nuevaFila["IdGasto"] = ObtenerNuevoId();
-                nuevaFila["Nombre"] = txtNombre.Text.Trim();
-                nuevaFila["Importe"] = Convert.ToDecimal(txtImporte.Text);
-                nuevaFila["TipoGasto"] = cmbTipoGasto.Text;
-                nuevaFila["IdCategoria"] = Convert.ToInt32(cmbCategoria.SelectedValue);
-                nuevaFila["NombreCategoria"] = cmbCategoria.Text;
-                nuevaFila["FechaGasto"] = dtpFechaGasto.Value.Date;
-
-                dtGastos.Rows.Add(nuevaFila);
-                
-                MessageBox.Show("Gasto registrado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var gasto = new GastoFirebase
+                {
+                    Nombre = txtNombre.Text.Trim(),
+                    Importe = Convert.ToDecimal(txtImporte.Text),
+                    TipoGasto = cmbTipoGasto.Text,
+                    IdCategoria = Convert.ToInt32(cmbCategoria.SelectedValue),
+                    NombreCategoria = cmbCategoria.Text,
+                    FechaGasto = dtpFechaGasto.Value.Date
+                };
+                await GuardarGastoEnFirebaseAsync(gasto);
+                MessageBox.Show("Gasto registrado correctamente en la nube.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await LeerGastosDeFirebaseAsync();
                 LimpiarCampos();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al agregar el registro: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al agregar el registro en la nube: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void btnModificar_Click(object sender, EventArgs e)
+        // Eliminar gasto en Firebase
+        private async Task EliminarGastoEnFirebaseAsync(string firebaseId)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.DeleteAsync($"{firebaseBaseUrl}/{firebaseId}.json");
+            }
+        }
+
+        // Modificar gasto en Firebase
+        private async Task ModificarGastoEnFirebaseAsync(string firebaseId, GastoFirebase gasto)
+        {
+            var json = JsonConvert.SerializeObject(gasto);
+            using (var client = new HttpClient())
+            {
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                // Firebase acepta PUT para reemplazo total
+                var response = await client.PutAsync($"{firebaseBaseUrl}/{firebaseId}.json", content);
+            }
+        }
+
+        private async void btnModificar_Click(object sender, EventArgs e)
         {
             if (!modoEdicion || dataGridView1.CurrentRow == null)
             {
@@ -258,15 +336,28 @@ namespace WindowsFormsApp1
             {
                 int id = int.Parse(txtIdGasto.Text);
                 DataRow fila = dtGastos.AsEnumerable().FirstOrDefault(r => r.Field<int>("IdGasto") == id);
-                
                 if (fila != null)
                 {
-                    fila["Nombre"] = txtNombre.Text.Trim();
-                    fila["Importe"] = Convert.ToDecimal(txtImporte.Text);
-                    fila["TipoGasto"] = cmbTipoGasto.Text;
-                    fila["IdCategoria"] = Convert.ToInt32(cmbCategoria.SelectedValue);
-                    fila["NombreCategoria"] = cmbCategoria.Text;
-                    fila["FechaGasto"] = dtpFechaGasto.Value.Date;
+                    string firebaseId = fila["FirebaseId"]?.ToString();
+                    var gasto = new GastoFirebase
+                    {
+                        Nombre = txtNombre.Text.Trim(),
+                        Importe = Convert.ToDecimal(txtImporte.Text),
+                        TipoGasto = cmbTipoGasto.Text,
+                        IdCategoria = Convert.ToInt32(cmbCategoria.SelectedValue),
+                        NombreCategoria = cmbCategoria.Text,
+                        FechaGasto = dtpFechaGasto.Value.Date
+                    };
+                    if (!string.IsNullOrEmpty(firebaseId))
+                    {
+                        await ModificarGastoEnFirebaseAsync(firebaseId, gasto);
+                    }
+                    fila["Nombre"] = gasto.Nombre;
+                    fila["Importe"] = gasto.Importe;
+                    fila["TipoGasto"] = gasto.TipoGasto;
+                    fila["IdCategoria"] = gasto.IdCategoria;
+                    fila["NombreCategoria"] = gasto.NombreCategoria;
+                    fila["FechaGasto"] = gasto.FechaGasto;
 
                     MessageBox.Show("Gasto modificado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LimpiarCampos();
@@ -278,7 +369,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void btnEliminar_Click(object sender, EventArgs e)
+        private async void btnEliminar_Click(object sender, EventArgs e)
         {
             if (!modoEdicion || dataGridView1.CurrentRow == null)
             {
@@ -295,9 +386,13 @@ namespace WindowsFormsApp1
                 {
                     int id = int.Parse(txtIdGasto.Text);
                     DataRow fila = dtGastos.AsEnumerable().FirstOrDefault(r => r.Field<int>("IdGasto") == id);
-                    
                     if (fila != null)
                     {
+                        string firebaseId = fila["FirebaseId"]?.ToString();
+                        if (!string.IsNullOrEmpty(firebaseId))
+                        {
+                            await EliminarGastoEnFirebaseAsync(firebaseId);
+                        }
                         dtGastos.Rows.Remove(fila);
                         MessageBox.Show("Gasto eliminado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LimpiarCampos();

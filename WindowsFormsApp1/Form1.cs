@@ -18,6 +18,7 @@ namespace WindowsFormsApp1
         public Form1()
         {
             InitializeComponent();
+            // Ya no se crea btnCrearUsuario aquí, se usará button1 del diseñador
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -25,6 +26,25 @@ namespace WindowsFormsApp1
             Login Login = new Login();
             Login.ShowDialog();
             label1.Text = "Usuario: " + cuenta;
+            // Mostrar el menú solo si el usuario es admin (nivel 2)
+            crearUsuarioToolStripMenuItem.Visible = (nivel == 2);
+            button1.Text = "Cambiar de usuario";
+        }
+
+        private void crearUsuarioToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var form = new CrearUsuario();
+            form.ShowDialog();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            cuenta = "";
+            nivel = 0;
+            Login login = new Login();
+            login.ShowDialog();
+            label1.Text = "Usuario: " + cuenta;
+            crearUsuarioToolStripMenuItem.Visible = (nivel == 2);
         }
 
         private void label1_Click(object sender, EventArgs e)
